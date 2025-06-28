@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { SearchProvider } from '@/components/search-provider';
-import { HeroSection } from '@/components/hero-section';
 import { SearchablePostList } from '@/components/searchable-post-list';
 
 const postsDirectory = path.join(process.cwd(), 'posts');
@@ -30,16 +28,17 @@ export default async function HomePage() {
   }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return (
-    <SearchProvider>
-      <div className="min-h-screen">
-        <HeroSection />
-        
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-3xl mx-auto">
-            <SearchablePostList posts={posts} />
-          </div>
+    <div className="container mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center space-y-4 mb-12">
+          <h1 className="text-4xl font-bold tracking-tight">Osaf's Blog</h1>
+          <p className="text-xl text-muted-foreground">
+            Thoughts, tutorials, and insights on web development
+          </p>
         </div>
+        
+        <SearchablePostList posts={posts} />
       </div>
-    </SearchProvider>
+    </div>
   );
 }
