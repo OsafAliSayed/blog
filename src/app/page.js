@@ -32,7 +32,7 @@ export default async function HomePage() {
   return (
     <SearchProvider>
       <div className="min-h-screen">
-        <HeroSection />
+        {/* <HeroSection /> */}
         
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-3xl mx-auto">

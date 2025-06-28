@@ -60,7 +60,7 @@ export function SearchablePostList({ posts }) {
       </div>
 
       {/* Search Field */}
-      <div className="mb-12">
+      <div className="mb-12 max-w-3xl mx-auto">
         <SearchField 
           onSearch={handleSearch}
           placeholder="Search posts by title, content, or tags..."
