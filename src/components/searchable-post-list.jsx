@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useSearch } from '@/components/search-provider';
-import { SearchField } from '@/components/search-field';
 
 // Helper function to highlight search terms
 function highlightText(text, searchTerm) {
@@ -17,7 +16,7 @@ function highlightText(text, searchTerm) {
   return parts.map((part, index) => {
     if (part.toLowerCase() === searchTerm.toLowerCase()) {
       return (
-        <mark key={index} className="bg-primary/20 text-primary px-1 rounded">
+        <mark key={index} className="bg-primary/20 text-primary p-1 rounded">
           {part}
         </mark>
       );
@@ -28,7 +27,7 @@ function highlightText(text, searchTerm) {
 
 export function SearchablePostList({ posts }) {
   const [filteredPosts, setFilteredPosts] = useState(posts);
-  const { searchTerm, setSearchTerm } = useSearch();
+  const { searchTerm } = useSearch();
 
   useEffect(() => {
     if (!searchTerm.trim()) {
@@ -45,10 +44,6 @@ export function SearchablePostList({ posts }) {
     setFilteredPosts(filtered);
   }, [searchTerm, posts]);
 
-  const handleSearch = (value) => {
-    setSearchTerm(value);
-  };
-
   return (
     <div id="posts-section">
       {/* Posts Header */}
@@ -57,14 +52,6 @@ export function SearchablePostList({ posts }) {
         <p className="text-lg text-muted-foreground">
           Explore articles on web development, programming, and technology
         </p>
-      </div>
-
-      {/* Search Field */}
-      <div className="mb-12 max-w-3xl mx-auto">
-        <SearchField 
-          onSearch={handleSearch}
-          placeholder="Search posts by title, content, or tags..."
-        />
       </div>
 
       <div className="grid gap-6">
@@ -108,13 +95,6 @@ export function SearchablePostList({ posts }) {
                 {highlightText(post.excerpt, searchTerm)}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button asChild variant="outline">
-                <Link href={`/blog/${post.slug}`}>
-                  Read More →
-                </Link>
-              </Button>
-            </CardContent>
           </Card>
         ))}
       </div>

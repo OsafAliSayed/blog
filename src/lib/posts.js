@@ -1,8 +1,10 @@
-import matter from 'gray-matter';
-import { NextResponse } from 'next/server';
-import { supabase, BUCKET_NAME } from '@/lib/supabase';
+import { supabase, BUCKET_NAME } from './supabase';
 
-export async function GET() {
+/**
+ * Fetch all blog posts from Supabase storage
+ * @returns {Promise<Array>} Array of blog post objects
+ */
+export async function fetchAllPosts() {
   try {
     // Get list of markdown files from Supabase storage
     const { data: files, error: listError } = await supabase.storage
@@ -14,7 +16,7 @@ export async function GET() {
 
     if (listError) {
       console.error('Error listing files from Supabase:', listError);
-      return NextResponse.json({ error: 'Failed to load posts' }, { status: 500 });
+      return [];
     }
 
     // Filter markdown files and process them
@@ -33,7 +35,8 @@ export async function GET() {
         }
 
         const fileContents = await fileData.text();
-        const { data, content } = matter(fileContents);
+        const matter = await import('gray-matter');
+        const { data, content } = matter.default(fileContents);
         
         // Get excerpt from content (first 150 characters)
         const excerpt = content.replace(/!\[.*?\]\(.*?\)/g, '').substring(0, 150) + '...';
@@ -55,12 +58,46 @@ export async function GET() {
     }));
 
     // Filter out failed downloads and sort by date
-    const validPosts = posts.filter(post => post !== null)
+    return posts.filter(post => post !== null)
       .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    return NextResponse.json(validPosts);
   } catch (error) {
     console.error('Error reading posts:', error);
-    return NextResponse.json({ error: 'Failed to load posts' }, { status: 500 });
+    return [];
+  }
+}
+
+/**
+ * Fetch a single blog post by slug from Supabase storage
+ * @param {string} slug - The slug of the blog post
+ * @returns {Promise<Object|null>} Blog post object or null if not found
+ */
+export async function fetchPostBySlug(slug) {
+  try {
+    // Download the markdown file from Supabase storage
+    const { data: fileData, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .download(`${slug}.md`);
+
+    if (error) {
+      console.error('Error downloading file from Supabase:', error);
+      return null;
+    }
+
+    // Convert the blob to text
+    const fileContents = await fileData.text();
+    const matter = await import('gray-matter');
+    const { data, content } = matter.default(fileContents);
+    
+    return {
+      slug,
+      title: data.title || slug,
+      date: data.date || '',
+      tags: Array.isArray(data.tags) ? data.tags : (data.tag ? data.tag.split(',').map(tag => tag.trim()) : []),
+      content,
+      data
+    };
+  } catch (error) {
+    console.error('Error loading blog post:', error);
+    return null;
   }
 }
